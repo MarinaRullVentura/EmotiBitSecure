@@ -15,7 +15,7 @@ It has been designed for **resource-constrained IoT devices**, maintaining compa
 ---
 
 ## 📁 Repository Structure
-
+```
 EmotiBitSecureProtocol/
 ├── EmotiBitHost/
 │   ├── EmotiBitSecurityHost.h       # Security logic for the Oscilloscope
@@ -31,6 +31,7 @@ EmotiBitSecureProtocol/
 │
 ├── EmotiBitOscilloscope_Security.app.zip   # Precompiled Oscilloscope binary (optional)
 └── README.md
+```
 
 ---
 
