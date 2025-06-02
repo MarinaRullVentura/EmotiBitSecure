@@ -29,7 +29,7 @@ EmotiBitSecureProtocol/
 │   ├── EmotiBitWiFi.h               # Adapted Wi-Fi layer (firmware)
 │   └── EmotiBitWiFi.cpp
 │
-├── EmotiBitOscilloscope_Security.app.zip   # Precompiled Oscilloscope binary (optional)
+├── EmotiBitOscilloscope_Security.app.zip   # Precompiled Oscilloscope 
 └── README.md
 ```
 
