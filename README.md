@@ -15,16 +15,21 @@ It has been designed for **resource-constrained IoT devices**, maintaining compa
 ---
 
 ## 📁 Repository Structure
-.
-├── EmotiBitSecurityHost.h     # Security logic for the Oscilloscope (host)
-├── EmotiBitSecurityHost.cpp
-├── EmotiBitWiFiHost.h         # Adapted Wi-Fi communication layer (host)
-├── EmotiBitWiFiHost.cpp
-├── EmotiBitSecurity.h         # Security logic for the EmotiBit firmware
-├── EmotiBitSecurity.cpp
-├── EmotiBitWiFi.h             # Adapted Wi-Fi layer for EmotiBit firmware
-├── EmotiBitWiFi.cpp
-├── EmotiBitOscilloscope_Security.app.zip  # Precompiled Oscilloscope binary (optional)
+
+EmotiBitSecureProtocol/
+├── EmotiBitHost/
+│   ├── EmotiBitSecurityHost.h       # Security logic for the Oscilloscope
+│   ├── EmotiBitSecurityHost.cpp
+│   ├── EmotiBitWiFiHost.h           # Adapted Wi-Fi layer (host)
+│   └── EmotiBitWiFiHost.cpp
+│
+├── EmotiBit/
+│   ├── EmotiBitSecurity.h           # Security logic for EmotiBit (ESP32)
+│   ├── EmotiBitSecurity.cpp
+│   ├── EmotiBitWiFi.h               # Adapted Wi-Fi layer (firmware)
+│   └── EmotiBitWiFi.cpp
+│
+├── EmotiBitOscilloscope_Security.app.zip   # Precompiled Oscilloscope binary (optional)
 └── README.md
 ---
 
