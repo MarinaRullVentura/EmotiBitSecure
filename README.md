@@ -69,9 +69,10 @@ EmotiBitSecureProtocol/
 4. Upload firmware using `EmotiBit_stock_firmware.ino`
 
 💡 Keys must be stored in the SD card using the format:
-
+```
 t1=<PSK_EMOTIBIT>
 t2=<PSK_OSCILLOSCOPE>
+```
 
 ---
 
