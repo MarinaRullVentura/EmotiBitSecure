@@ -31,6 +31,7 @@ EmotiBitSecureProtocol/
 │
 ├── EmotiBitOscilloscope_Security.app.zip   # Precompiled Oscilloscope binary (optional)
 └── README.md
+
 ---
 
 ## ⚙️ Features
