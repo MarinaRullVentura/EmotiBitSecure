@@ -17,7 +17,7 @@
 #include <mbedtls/md.h>
 #include <SD.h>
 
-#define PSK_LENGTH 32
+#define PSK_LENGTH 16
 #define BLOCK_SIZE 16
 #define HMAC_LEN 32
 
@@ -43,7 +43,7 @@ public:
     static bool removePadding(std::vector<uint8_t>& data, uint8_t blockSize);
 
     /**
-     * Encrypts input data using AES-256 ECB mode.
+     * Encrypts input data using AES-128 ECB mode.
      * @param key AES encryption key (32 bytes).
      * @param input Raw input data to encrypt.
      * @param len Length of the input data.
@@ -52,7 +52,7 @@ public:
     static std::vector<uint8_t> aesEncrypt(const uint8_t* key, const uint8_t* input, size_t len);
 
     /**
-     * Decrypts AES-256 ECB encrypted data.
+     * Decrypts AES-128 ECB encrypted data.
      * @param key AES decryption key (32 bytes).
      * @param input Encrypted data.
      * @param len Length of the encrypted data.
