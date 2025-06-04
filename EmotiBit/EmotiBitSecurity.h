@@ -31,7 +31,7 @@ public:
      * @return true if padding applied successfully.
      */
     static bool padMessage(String& message, uint8_t blockSize);
-
+    static std::array<uint8_t, PSK_LENGTH> hexStringToBytes(const String& hex);
     /**
      * Removes PKCS#7 padding from decrypted data.
      * @param data Byte vector to remove padding from.
