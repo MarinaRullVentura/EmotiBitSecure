@@ -11,8 +11,6 @@
 
 #include <Arduino.h>
 #include <vector>
-#define MBEDTLS_CMAC_C
-#include <mbedtls/cmac.h>
 #include <mbedtls/aes.h>
 #include <mbedtls/md.h>
 #include <SD.h>
