@@ -21,7 +21,7 @@ bool EmotiBitSecurity::removePadding(std::vector<uint8_t>& data, uint8_t blockSi
 std::vector<uint8_t> EmotiBitSecurity::aesEncrypt(const uint8_t* key, const uint8_t* input, size_t len) {
 	mbedtls_aes_context aes;
 	mbedtls_aes_init(&aes);
-	mbedtls_aes_setkey_enc(&aes, key, 256);
+	mbedtls_aes_setkey_enc(&aes, key, 128);
 	std::vector<uint8_t> output(len);
 	for (size_t i = 0; i < len; i += BLOCK_SIZE)
 	mbedtls_aes_crypt_ecb(&aes, MBEDTLS_AES_ENCRYPT, input + i, output.data() + i);
@@ -32,7 +32,7 @@ std::vector<uint8_t> EmotiBitSecurity::aesEncrypt(const uint8_t* key, const uint
 std::vector<uint8_t> EmotiBitSecurity::aesDecrypt(const uint8_t* key, const uint8_t* input, size_t len) {
 	mbedtls_aes_context aes;
 	mbedtls_aes_init(&aes);
-	mbedtls_aes_setkey_dec(&aes, key, 256);
+	mbedtls_aes_setkey_dec(&aes, key, 128);
 	std::vector<uint8_t> output(len);
 	for (size_t i = 0; i < len; i += BLOCK_SIZE)
 	mbedtls_aes_crypt_ecb(&aes, MBEDTLS_AES_DECRYPT, input + i, output.data() + i);
@@ -84,6 +84,18 @@ bool EmotiBitSecurity::decryptAndVerify(const std::vector<uint8_t>& input, Strin
 	return decryptOnly(cipher, plaintextOut, key);
 }
 
+std::array<uint8_t, PSK_LENGTH> EmotiBitSecurity::hexStringToBytes(const String& hex) {
+	std::array<uint8_t, PSK_LENGTH> bytes{};
+	if (hex.length() != PSK_LENGTH * 2) {
+		throw std::invalid_argument("Hex string must be 32 characters (16 bytes)");
+	}
+	for (size_t i = 0; i < PSK_LENGTH; ++i) {
+		String byteStr = hex.substring(i * 2, i * 2 + 2);
+		bytes[i] = static_cast<uint8_t>(strtol(byteStr.c_str(), nullptr, 16));
+	}
+	return bytes;
+}
+
 // ========== Key Loading ==========
 
 bool EmotiBitSecurity::loadKeysFromFile(const String& path) {
@@ -99,9 +111,21 @@ bool EmotiBitSecurity::loadKeysFromFile(const String& path) {
 	}
 	f.close();
 
-	if (keyEbStr.length() != PSK_LENGTH || keyOscStr.length() != PSK_LENGTH) return false;
-	memcpy(_psk_eb, keyEbStr.c_str(), PSK_LENGTH);
-	memcpy(_psk_osc, keyOscStr.c_str(), PSK_LENGTH);
+	if (keyEbStr.length() != PSK_LENGTH * 2 || keyOscStr.length() != PSK_LENGTH * 2) return false;
+
+	for (char c : keyEbStr + keyOscStr) {
+		if (!isxdigit(c)) return false;
+	}
+
+	try {
+		auto ebKey = EmotiBitSecurity::hexStringToBytes(keyEbStr);
+		auto oscKey = EmotiBitSecurity::hexStringToBytes(keyOscStr);
+		memcpy(_psk_eb, ebKey.data(), PSK_LENGTH);
+		memcpy(_psk_osc, oscKey.data(), PSK_LENGTH);
+	} catch (...) {
+		return false;
+	}
+
 	return true;
 }
 
