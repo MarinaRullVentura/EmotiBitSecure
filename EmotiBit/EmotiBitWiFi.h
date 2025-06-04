@@ -44,10 +44,10 @@
 #include "EmotiBitSecurity.h"
 #include "mbedtls/aes.h"
 #include "mbedtls/md.h"
-#include <vector>        // 👈 NECESARIO para std::vector
-#include <stdint.h>      // Por si faltan tipos como uint8_t
-#include <SD.h>               // o tu librería SdFat/SDFS, según placa
-#include <ArduinoJson.h>      // asegúrate de tenerla incluida
+#include <vector>      
+#include <stdint.h>     
+#include <SD.h>               
+#include <ArduinoJson.h>      
 class EmotiBitWiFi {
 public:
 	struct Credential
