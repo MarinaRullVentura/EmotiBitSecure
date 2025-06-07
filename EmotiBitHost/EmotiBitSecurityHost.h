@@ -1,10 +1,12 @@
-/**
- * @file EmotiBitSecurityHost.h
- * @brief Security module for handling encryption, decryption, signing and verification
- *        of messages exchanged with EmotiBit devices using PSK-based AES and HMAC.
- * @author Marina Rull Ventura
- * @date 01-07-2025
- */
+// ==========================================================================================
+//  EmotiBitSecurityHost.h
+//
+//  Descripció:
+//  Classe per gestionar operacions criptogràfiques a l'host per a dispositius EmotiBit.
+//  Inclou funcionalitats per xifrat i desxifrat AES, HMAC, padding de missatges,
+//  gestió de claus precompartides (PSK) i verificació d'integritat.
+//
+// ==========================================================================================
 
 #pragma once
 
@@ -13,181 +15,184 @@
 #include <map>
 #include <array>
 #include <mutex>
-#include <iostream>
-#include <mbedtls/aes.h>
-#include <mbedtls/md.h>
-#include <ofMain.h>
 
-#define PSK_LENGTH 32
+#define PSK_LENGTH 16
 #define AES_BLOCK_SIZE 16
 #define HMAC_LEN 32
 
 class EmotiBitSecurityHost {
 public:
-    // ========== Common functions ==========
+    // ================= Funcions comunes =================
 
     /**
-     * @brief Adds PKCS#7 padding to the message.
-     * @param message The string to be padded (modified in-place).
-     * @param blockSize The block size (typically 16 bytes for AES).
-     * @return True if padding is applied correctly.
+     * Afegeix padding PKCS#7 a un missatge perquè sigui múltiple de blockSize.
+     * @param message Missatge original que es modificarà.
+     * @param blockSize Mida del bloc (habitualment 16).
+     * @return true si s'ha aplicat correctament.
      */
     bool padMessage(std::string& message, uint8_t blockSize) const;
 
     /**
-     * @brief Removes PKCS#7 padding from the decrypted message.
-     * @param data Vector of decrypted bytes (modified in-place).
-     * @param blockSize The block size used during encryption.
-     * @return True if padding is valid and removed.
+     * Elimina el padding PKCS#7 d'un vector de dades.
+     * @param data Dades a despaddejar.
+     * @param blockSize Mida del bloc original.
+     * @return true si el padding era vàlid i s'ha eliminat.
      */
     bool removePadding(std::vector<uint8_t>& data, uint8_t blockSize) const;
 
     /**
-     * @brief Encrypts input data using AES-256 in ECB mode.
-     * @param key AES-256 key (32 bytes).
-     * @param input Pointer to the plaintext.
-     * @param len Length of the plaintext.
-     * @return Encrypted data.
+     * Xifra dades amb AES-128 en mode ECB.
+     * @param key Clau AES de 16 bytes.
+     * @param input Dades a xifrar.
+     * @param len Longitud de les dades.
+     * @return Vector amb les dades xifrades.
      */
     std::vector<uint8_t> aesEncrypt(const uint8_t* key, const uint8_t* input, size_t len) const;
 
     /**
-     * @brief Decrypts input data using AES-256 in ECB mode.
-     * @param key AES-256 key (32 bytes).
-     * @param input Pointer to the ciphertext.
-     * @param len Length of the ciphertext.
-     * @return Decrypted data.
+     * Desxifra dades amb AES-128 en mode ECB.
+     * @param key Clau AES de 16 bytes.
+     * @param input Dades xifrades.
+     * @param len Longitud de les dades.
+     * @return Vector amb les dades desxifrades.
      */
     std::vector<uint8_t> aesDecrypt(const uint8_t* key, const uint8_t* input, size_t len) const;
 
     /**
-     * @brief Computes HMAC-SHA256 for input data.
-     * @param key HMAC key (32 bytes).
-     * @param data Input data pointer.
-     * @param len Length of input data.
-     * @return HMAC result (32 bytes).
+     * Calcula un HMAC-SHA256 sobre unes dades donades.
+     * @param key Clau HMAC.
+     * @param data Dades d'entrada.
+     * @param len Longitud de les dades.
+     * @return Vector amb l'HMAC.
      */
     std::vector<uint8_t> calculateHmac(const uint8_t* key, const uint8_t* data, size_t len) const;
 
     /**
-     * @brief Splits input into ciphertext and HMAC components.
-     * @param input Full input vector.
-     * @param cipherOut Output vector for ciphertext.
-     * @param hmacOut Output vector for HMAC.
-     * @return True if split is successful.
+     * Separa un vector d'entrada en xifrat i HMAC.
+     * @param input Vector combinat (xifrat + HMAC).
+     * @param cipherOut Sortida del xifrat.
+     * @param hmacOut Sortida del HMAC.
+     * @return true si la separació ha tingut èxit.
      */
     bool splitCipherAndHmac(const std::vector<uint8_t>& input, std::vector<uint8_t>& cipherOut, std::vector<uint8_t>& hmacOut) const;
 
     /**
-     * @brief Verifies message HMAC.
-     * @param cipher Encrypted message.
-     * @param hmac Provided HMAC.
-     * @param key HMAC key.
-     * @return True if HMAC is valid.
+     * Verifica un paquet xifrat utilitzant un HMAC proporcionat.
+     * @param cipher Dades xifrades.
+     * @param hmac HMAC calculat.
+     * @param key Clau HMAC.
+     * @return true si la verificació és correcta.
      */
     bool verifyOnly(const std::vector<uint8_t>& cipher, const std::vector<uint8_t>& hmac, const uint8_t* key) const;
 
     /**
-     * @brief Decrypts a message without HMAC verification.
-     * @param cipher Encrypted data.
-     * @param plaintextOut Output plaintext string.
-     * @param key AES key.
-     * @return True if decryption succeeds.
+     * Desxifra un paquet però no en verifica l'HMAC.
+     * @param cipher Dades xifrades.
+     * @param plaintextOut Sortida del missatge pla.
+     * @param key Clau AES.
+     * @return true si la desxifració ha tingut èxit.
      */
     bool decryptOnly(const std::vector<uint8_t>& cipher, std::string& plaintextOut, const uint8_t* key) const;
 
     /**
-     * @brief Decrypts and verifies an encrypted message.
-     * @param input Full message with ciphertext and HMAC.
-     * @param plaintextOut Output plaintext string.
-     * @param key AES/HMAC key.
-     * @return True if both decryption and verification succeed.
+     * Desxifra i verifica la integritat del paquet xifrat.
+     * @param input Paquet complet (xifrat + HMAC).
+     * @param plaintextOut Missatge pla desxifrat.
+     * @param key Clau AES i HMAC.
+     * @return true si l'HMAC és vàlid i el contingut desxifrat.
      */
     bool decryptAndVerify(const std::vector<uint8_t>& input, std::string& plaintextOut, const uint8_t* key) const;
 
     /**
-     * @brief Encrypts and signs a message using AES and HMAC.
-     * @param message Plaintext to encrypt.
-     * @param aesKey AES-256 key.
-     * @param hmacKey HMAC-SHA256 key.
-     * @param outEncrypted Output combined ciphertext + HMAC.
-     * @return True if successful.
+     * Xifra i signa un missatge amb AES i HMAC.
+     * @param message Missatge pla.
+     * @param aesKey Clau de xifrat.
+     * @param hmacKey Clau de signatura.
+     * @param outEncrypted Sortida amb xifrat + HMAC.
+     * @return true si ha anat bé.
      */
     bool encryptAndSign(const std::string& message, const uint8_t* aesKey, const uint8_t* hmacKey, std::vector<uint8_t>& outEncrypted) const;
 
-    // ========== Specific functions ==========
+    /**
+     * Converteix una cadena hexadecimal en una array de bytes.
+     * @param hex Cadena hex (32 caràcters per 16 bytes).
+     * @return Array de 16 bytes.
+     */
+    std::array<uint8_t, PSK_LENGTH> hexStringToBytes(const std::string& hex);
+
+    // ================= Funcions específiques =================
 
     /**
-     * @brief Loads PSKs from remote JSON (URL).
-     * @param url Endpoint providing device keys.
-     * @return True if the Oscilloscope key is loaded.
+     * Carrega claus des d’una URL (per exemple, fitxer JSON).
+     * @param url Ruta o enllaç.
+     * @return true si s’ha carregat correctament.
      */
     bool loadKeysFromUrl(const std::string& url);
 
     /**
-     * @brief Encrypts and signs a message with the Oscilloscope's PSK.
-     * @param plaintext Plain message to secure.
-     * @return Encrypted and signed message.
+     * Xifra un missatge per enviar-lo a l’oscil·loscopi.
+     * @param plaintext Missatge pla.
+     * @return Vector xifrat signat.
      */
     std::vector<uint8_t> encryptAndSignWithOscilloscope(const std::string& plaintext);
 
     /**
-     * @brief Decrypts and verifies a packet from the connected EmotiBit.
-     * @param encryptedPacket Full packet.
-     * @param plaintextOut Decrypted output.
-     * @return True if the operation is successful.
+     * Desxifra i valida un paquet rebut del dispositiu connectat.
+     * @param encryptedPacket Paquet xifrat complet.
+     * @param plaintextOut Resultat desxifrat.
+     * @return true si ha estat vàlid.
      */
     bool decryptAndVerifyFromConnected(const std::vector<uint8_t>& encryptedPacket, std::string& plaintextOut);
 
     /**
-     * @brief Verifies a packet using the key of the connected EmotiBit.
-     * @param cipher Encrypted portion.
-     * @param hmac Provided HMAC.
-     * @return True if valid.
+     * Verifica només l’HMAC d’un paquet connectat.
+     * @param cipher Dades xifrades.
+     * @param hmac HMAC.
+     * @return true si és vàlid.
      */
     bool verifyConnectedPacket(const std::vector<uint8_t>& cipher, const std::vector<uint8_t>& hmac) const;
 
     /**
-     * @brief Decrypts advertisement packet from an EmotiBit.
-     * @param encryptedPacket Packet to decrypt.
-     * @param packetsOut Decrypted payloads.
-     * @param cipherOut Extracted cipher.
-     * @param hmacOut Extracted HMAC.
-     * @return True if successful.
+     * Desxifra paquets d’anuncis i retorna múltiples missatges.
+     * @param encryptedPacket Paquet original.
+     * @param packetsOut Vector de missatges desxifrats.
+     * @param cipherOut Part xifrada separada.
+     * @param hmacOut HMAC separat.
+     * @return true si tot és vàlid.
      */
     bool decryptAdvertisement(const std::vector<uint8_t>& encryptedPacket, std::vector<std::string>& packetsOut, std::vector<uint8_t>& cipherOut, std::vector<uint8_t>& hmacOut);
 
     /**
-     * @brief Verifies a HelloHost message.
-     * @param cipher Encrypted HelloHost.
-     * @param hmac HMAC.
-     * @param id Device ID to lookup.
-     * @return True if verified.
+     * Verifica un paquet de tipus "hello" d’un EmotiBit.
+     * @param cipher Contingut xifrat.
+     * @param hmac HMAC del paquet.
+     * @param id Identificador del dispositiu.
+     * @return true si és vàlid.
      */
     bool verifyHelloHost(const std::vector<uint8_t>& cipher, const std::vector<uint8_t>& hmac, const std::string& id) const;
 
     /**
-     * @brief Sets the currently connected EmotiBit device.
-     * @param id Device ID.
+     * Defineix quin dispositiu està connectat actualment.
+     * @param id Identificador del dispositiu.
      */
     void setConnectedDevice(const std::string& id);
 
     /**
-     * @brief Clears the connected device information.
+     * Neteja el dispositiu connectat.
      */
     void clearConnectedDevice();
 
     /**
-     * @brief Adds a discovered EmotiBit to internal repository.
-     * @param id Device ID.
-     * @param psk Pre-shared key.
+     * Afegeix un dispositiu descobert amb la seva PSK.
+     * @param id Identificador.
+     * @param psk Clau precompartida.
      */
     void addDiscoveredEmotiBit(const std::string& id, const std::array<uint8_t, PSK_LENGTH>& psk);
 
     /**
-     * @brief Retrieves a PSK from the local repository.
-     * @param id Device ID.
-     * @return Associated PSK.
+     * Recupera la PSK d’un dispositiu conegut.
+     * @param id Identificador.
+     * @return PSK associada.
      */
     std::array<uint8_t, PSK_LENGTH> getPskFromRepo(const std::string& id) const;
 
