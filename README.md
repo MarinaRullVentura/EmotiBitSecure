@@ -6,7 +6,7 @@ This repository contains the implementation of a lightweight cryptographic secur
 
 This security protocol ensures:
 
-- 🔐 **Confidentiality** using symmetric encryption (AES-256 in ECB mode)
+- 🔐 **Confidentiality** using symmetric encryption (AES-128 in ECB mode)
 - 🧾 **Integrity** and 🆔 **Authentication** using HMAC-SHA256
 - 🔄 **Replay protection** through packet sequence numbering
 
